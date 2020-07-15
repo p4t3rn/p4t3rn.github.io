@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"p4t3rn.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本系列主要记录如何使用家用服务器安装esxi虚拟环境同时搭建爱快+lede+群晖+hassio（Ubuntu）实现网络管理以及智能家居和娱乐影音系统。 ——生命不息，折腾不止。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="家庭网络环境搭建（1）——gen8安装esxi6.7">
+<meta property="og:url" content="https://p4t3rn.github.io/2020/07/15/%E5%AE%B6%E5%BA%AD%E7%BD%91%E7%BB%9C%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%EF%BC%881%EF%BC%89%E2%80%94%E2%80%94gen8%E5%AE%89%E8%A3%85esxi6-7/index.html">
+<meta property="og:site_name" content="苦作之时">
+<meta property="og:description" content="本系列主要记录如何使用家用服务器安装esxi虚拟环境同时搭建爱快+lede+群晖+hassio（Ubuntu）实现网络管理以及智能家居和娱乐影音系统。 ——生命不息，折腾不止。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/gen8esxi1.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/gen8esxi2.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-143157.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-143321.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-143813.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144251.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144334.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144422.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144528.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144709.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144720.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144736.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144801.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144854.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144810.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144949.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-145002.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-145021.png">
+<meta property="og:image" content="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-145035.png">
+<meta property="article:published_time" content="2020-07-15T12:42:50.000Z">
+<meta property="article:modified_time" content="2020-07-15T12:44:01.271Z">
+<meta property="article:author" content="嗨哟君">
+<meta property="article:tag" content="虚拟机">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://home.ssyweb.top:1443/images/2019/09/06/gen8esxi1.png">
+
+<link rel="canonical" href="https://p4t3rn.github.io/2020/07/15/%E5%AE%B6%E5%BA%AD%E7%BD%91%E7%BB%9C%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%EF%BC%881%EF%BC%89%E2%80%94%E2%80%94gen8%E5%AE%89%E8%A3%85esxi6-7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>家庭网络环境搭建（1）——gen8安装esxi6.7 | 苦作之时</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">苦作之时</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">不务正业的运维工程师</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+
+    <a href="/search/" rel="section"><i class="fa fa-search fa-fw"></i>搜索</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://p4t3rn.github.io/2020/07/15/%E5%AE%B6%E5%BA%AD%E7%BD%91%E7%BB%9C%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%EF%BC%881%EF%BC%89%E2%80%94%E2%80%94gen8%E5%AE%89%E8%A3%85esxi6-7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+      <meta itemprop="name" content="嗨哟君">
+      <meta itemprop="description" content="懒症发作就别见光明之时">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="苦作之时">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          家庭网络环境搭建（1）——gen8安装esxi6.7
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-15 20:42:50 / 修改时间：20:44:01" itemprop="dateCreated datePublished" datetime="2020-07-15T20:42:50+08:00">2020-07-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%99%BA%E8%83%BD%E5%AE%B6%E5%BA%AD/" itemprop="url" rel="index"><span itemprop="name">智能家庭</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本系列主要记录如何使用家用服务器安装esxi虚拟环境同时搭建爱快+lede+群晖+hassio（Ubuntu）实现网络管理以及智能家居和娱乐影音系统。 ——生命不息，折腾不止。</p>
+<a id="more"></a>
+
+<h1 id="Gen8安装Esxi6-7"><a href="#Gen8安装Esxi6-7" class="headerlink" title="Gen8安装Esxi6.7"></a>Gen8安装Esxi6.7</h1><h2 id="1-前期环境准备"><a href="#1-前期环境准备" class="headerlink" title="1.前期环境准备"></a>1.前期环境准备</h2><h3 id="下载esxi："><a href="#下载esxi：" class="headerlink" title="下载esxi："></a>下载esxi：</h3><p><a href="https://my.vmware.com/group/vmware/details?downloadGroup=OEM-ESXI67U3-HPE&productId=742&download=true&fileId=41bc21cf68411a48a1e649c30ec56760&secureParam=a8dc0ae2c7002bb2f12efa8d5fde3993&uuId=ad9946ae-4901-4721-a996-b902b13c49ce&downloadType=#" target="_blank" rel="noopener">下载地址</a></p>
+<p>这是HPgen9的esxi6.7u3，官网关于gen8的iso好像已经停留在了6.5上，我用的是gen9的6.7u2并没有出现什么问题，u3应该也没问题，如果不放心可以在官网查找关于gen8定制6.5的iso。<a href="https://my.vmware.com/en/web/vmware/info/slug/datacenter_cloud_infrastructure/vmware_vsphere/6_7#custom_iso" target="_blank" rel="noopener">传送门</a></p>
+<p>这里多啰嗦一句，尽量养成官网下载的习惯，省的出问题。</p>
+<h3 id="安装esxi："><a href="#安装esxi：" class="headerlink" title="安装esxi："></a>安装esxi：</h3><h4 id="挂载iso"><a href="#挂载iso" class="headerlink" title="挂载iso"></a>挂载iso</h4><p>将gen8的硬盘全部拿出来，把准备好的u盘插入主板内置接口上<em>（这里注意不是很推荐闪迪的魔豆第一是需要修改引导，第二不确定是否是魔豆造成的但是确实导致我整个esxi文件全部丢失，我有写相关文章，自行查找）</em></p>
+<p>进入gen8的iLO控制台挂载下好的iso文件（由于我已经安装好了esxi，这里使用虚拟机演示）</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/gen8esxi1.png" alt="gen8esxi1"></p>
+<p>挂载之后就可以开机了。</p>
+<h4 id="开机安装"><a href="#开机安装" class="headerlink" title="开机安装"></a>开机安装</h4><p>开机选择第一个install回车（实际上你不进行键盘操作的话它自动进入第一项）</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/gen8esxi2.png" alt="img"></p>
+<p>稍等片刻后</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-143157.png" alt="img"></p>
+<p>正式进入安装</p>
+<p>回车确认</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-143321.png" alt="img"></p>
+<p>F11同意并继续</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-143813.png" alt="img"></p>
+<p>选择安装所在位置</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144251.png" alt="img"></p>
+<p>键盘所用区域就选择US Default（除非你用别的布局）</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144334.png" alt="img"></p>
+<p>漏截了两张，这里口述，设定密码，密码规则为英文字母+数字+符合（不强制规定大小写）</p>
+<p>F11确认安装</p>
+<p>安装中</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144422.png" alt="img"></p>
+<p>移除光驱并重启</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144528.png" alt="img"></p>
+<h4 id="设定网卡及LAN口IP"><a href="#设定网卡及LAN口IP" class="headerlink" title="设定网卡及LAN口IP"></a>设定网卡及LAN口IP</h4><p>重启后进入操作台</p>
+<p>会自动通过dhcp分配相应ip</p>
+<p>这里我是习惯手动分配所以要做一些简单的修改</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144709.png" alt="img"></p>
+<p>按F2输入密码</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144720.png" alt="img"></p>
+<p>选择Configure Management Network</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144736.png" alt="img"></p>
+<p>这里简单说一下关于多网卡的问题</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144801.png" alt="img"></p>
+<p>Network Adapters设置网卡，用于多网卡设备，譬如gen8之类的双网卡服务器以及各类多网卡工控板</p>
+<p>常用的也就是为了设定lan口访问，由于这里我演示是用的虚拟机，所以网卡只有一个，但是如果你有多个网卡，这里就会显示，在每个网卡的前面都有一个括号，X代表选择，选择后可以查看Status（状态）Connected即通过，你想通过哪张网卡就选择哪个。</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144854.png" alt="img"></p>
+<p>手动设置ip</p>
+<p>IPv4 Configuration 设置Lan口ip</p>
+<p>选择第三项Set static IPv4 address and network configuration：</p>
+<p>同网段ip</p>
+<p>子网掩码</p>
+<p>网关</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144810.png" alt="img"></p>
+<h4 id="通过浏览器访问ip"><a href="#通过浏览器访问ip" class="headerlink" title="通过浏览器访问ip"></a>通过浏览器访问ip</h4><p>注意由于证书问题所以浏览器会提示，选择高级—继续访问即可</p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-144949.png" alt="img"></p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-145002.png" alt="img"></p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-145021.png" alt="img"></p>
+<p><img src="https://home.ssyweb.top:1443/images/2019/09/06/WX20190906-145035.png" alt="img"></p>
+<p>大功告成</p>
+<p>下篇预告：家庭网络集成化（2）——esxi6.7部署爱快+lede（软路由）</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="tag"># 虚拟机</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/15/5%E5%88%86%E9%92%9F%E5%9C%A8%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%8A%E6%90%AD%E5%BB%BAhexo%E5%8D%9A%E5%AE%A2%EF%BC%88%E9%9D%9Egithub%20page%EF%BC%89/" rel="prev" title="5分钟在阿里云上搭建hexo博客（非github page）">
+      <i class="fa fa-chevron-left"></i> 5分钟在阿里云上搭建hexo博客（非github page）
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Gen8安装Esxi6-7"><span class="nav-number">1.</span> <span class="nav-text">Gen8安装Esxi6.7</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-前期环境准备"><span class="nav-number">1.1.</span> <span class="nav-text">1.前期环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#下载esxi："><span class="nav-number">1.1.1.</span> <span class="nav-text">下载esxi：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装esxi："><span class="nav-number">1.1.2.</span> <span class="nav-text">安装esxi：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#挂载iso"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">挂载iso</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开机安装"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">开机安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设定网卡及LAN口IP"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">设定网卡及LAN口IP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过浏览器访问ip"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">通过浏览器访问ip</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嗨哟君"
+      src="/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">嗨哟君</p>
+  <div class="site-description" itemprop="description">懒症发作就别见光明之时</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:ssyu_a@163.com" title="E-Mail → mailto:ssyu_a@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/277381122" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;277381122" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/s1yu_shen" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;s1yu_shen" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://home.ssyweb.top:1443/" title="Chevereto → https:&#x2F;&#x2F;home.ssyweb.top:1443" rel="noopener" target="_blank"><i class="fas fa-image fa-fw"></i>Chevereto</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">冀ICP备18038367号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嗨哟君</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"scale":1,"hHeadPos":0.5,"vHeadPos":0.618,"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"superSample":2,"width":150,"height":300,"position":"right","hOffset":0,"vOffset":-20},"mobile":{"show":true,"scale":0.5},"react":{"opacityDefault":0.7,"opacityOnHover":0.2},"log":false});</script></body>
+</html>
